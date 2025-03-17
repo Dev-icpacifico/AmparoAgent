@@ -1,28 +1,41 @@
+from dotenv import load_dotenv
+
 from Amparo2.memory.session_manager import session_manager
-from googlesearch import search  # ✅ Ahora usamos googlesearch-python para buscar en la web
+from tavily import TavilyClient
+import os
+
+# Cargar variables de entorno
+load_dotenv()
+
+# Configurar API de Tavily
+TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
+tavily_client = TavilyClient(api_key=TAVILY_API_KEY)
 
 def handle_beneficios_query(session_id, user_input):
     """
-    Busca información en Internet sobre beneficios y mantiene la sesión.
+    Busca información en Tavily sobre beneficios y genera un resumen para el usuario.
     """
-    # Obtener la sesión actual o crear una nueva si no existe
     state = session_manager.get_session(session_id)
     if state is None:
         state = session_manager.create_session()
 
-    # Construir la consulta de búsqueda
-    query = f"{user_input} beneficios laborales en Chile Caja Los Andes Cámara Chilena de la Construcción"
-
+    # 📌 Realizar la búsqueda con Tavily
     try:
-        # Hacer una búsqueda en Google y obtener los primeros 3 resultados
-        search_results = list(search(query, num_results=3))
-        respuesta = "Encontré información relevante sobre tu consulta:\n\n" + "\n".join(search_results)
+        search_results = tavily_client.search(query=user_input, max_results=3)
+        articles = search_results.get("results", [])
+
+        if not articles:
+            respuesta = "No encontré información relevante sobre tu consulta. Intenta buscar en la página de Caja Los Andes."
+        else:
+            # 📌 Generar un resumen de los artículos encontrados
+            resumen = "\n\n".join([f"📌 {art['title']}: {art['content'][:300]}..." for art in articles])
+            respuesta = f"Encontré esta información relevante sobre beneficios:\n\n{resumen}"
+
     except Exception as e:
-        respuesta = "No pude obtener información en este momento. Intenta más tarde."
+        print(f"❌ Error en la búsqueda web: {e}")
+        respuesta = "Hubo un problema al obtener información en la web. Inténtalo más tarde."
 
-    # Agregar la respuesta al historial de la sesión
     state.add_message(user_input, respuesta)
-
-    # 📌 Asegurar que se devuelve el `state` actualizado
     session_manager.update_session(session_id, state)
+
     return state
