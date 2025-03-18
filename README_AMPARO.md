@@ -1,188 +1,171 @@
-# 🏗️ Amparo - Asistente Virtual de RRHH 📢
+### 📌 **README.md** (Copia y pega directamente en tu archivo `README.md`)
 
-**Amparo** es un **sistema multiagente basado en LangGraph** diseñado para asistir a los trabajadores de una empresa de construcción mediante un **tótem de autoatención**.  
-Este sistema permite responder consultas sobre **sueldos, reglamento interno, beneficios y documentos laborales**, proporcionando información precisa y automatizada.
 
----
+# 🏗️ Amparo - Sistema Multiagente con LangGraph
 
-## **🎯 Objetivos del Proyecto**
-El sistema **Amparo** tiene como objetivo proporcionar una plataforma de atención eficiente y automatizada para los trabajadores de la empresa. Se enfoca en:
+**Amparo** es un **sistema multiagente basado en LangGraph** diseñado para asistir a los trabajadores de la empresa de construcción a través de un **tótem de autoatención** en la oficina de Recursos Humanos.
 
-✅ **Reducir la carga de trabajo del personal de RRHH**, proporcionando respuestas automáticas a consultas frecuentes.  
-✅ **Facilitar el acceso a información clave**, como el reglamento interno, fechas de pago y beneficios disponibles.  
-✅ **Permitir la consulta y solicitud de documentos laborales** sin necesidad de intervención humana.  
-✅ **Ofrecer una experiencia de usuario intuitiva y accesible a través de un tótem de autoatención.**  
-
----
-
-## **📌 Alcance del Proyecto**
-El sistema **Amparo** está diseñado para responder consultas **exclusivamente dentro del ámbito de Recursos Humanos**, incluyendo:
-
-🔹 **Consultas sobre sueldos:** Anticipos, fechas de pago y descuentos en la liquidación.  
-🔹 **Normativa interna:** Reglas de la empresa, derechos y deberes de los trabajadores.  
-🔹 **Beneficios laborales:** Información sobre Caja Los Andes, convenios y seguros.  
-🔹 **Documentos oficiales:** Liquidaciones de sueldo, contratos y certificados.  
-
-❌ **No responde consultas fuera de estos temas**. Si el usuario hace una pregunta fuera del alcance, **Amparo le indicará que no puede ayudarle**.
+## 📌 **Objetivo del Proyecto**
+- **Brindar asistencia automatizada** sobre temas de **recursos humanos**.
+- **Responder preguntas sobre:**
+  - 📅 **Sueldos y anticipos**
+  - 📜 **Reglamento interno**
+  - 🎁 **Beneficios (Caja Los Andes, Cámara Chilena de la Construcción, etc.)**
+  - 📑 **Documentos de RRHH (ej. liquidaciones en BUK)**
+- **Mantener historial de conversación** con cada usuario.
+- **Persistir sesiones en SQLite** para que la información no se pierda tras un reinicio.
+- **Visualizar el flujo del sistema con un grafo.**
 
 ---
 
-## **🧠 Agentes Implementados y Funcionalidades**
-El sistema Amparo está diseñado bajo una arquitectura **multiagente**, donde cada tipo de consulta es manejada por un **agente especializado**.
-
-| **Agente**           | **Descripción y Funcionalidades** |
-|----------------------|----------------------------------|
-| `amparo_agent.py`   | **Agente principal.** Recibe las consultas de los trabajadores y las redirige al agente especializado adecuado. También maneja las respuestas finales que se mostrarán al usuario. |
-| `sueldo_agent.py`   | **Maneja consultas sobre sueldos.** Responde preguntas sobre: (1) montos de anticipos, (2) explicación de descuentos en la liquidación, (3) redirigir solicitudes de impresión de liquidaciones al agente de documentos. |
-| `beneficios_agent.py` | **Obtiene información en tiempo real sobre beneficios.** Utiliza Google para buscar información actualizada sobre Caja Los Andes, la Cámara Chilena de la Construcción y otros beneficios disponibles para los trabajadores. |
-| `reglamento_agent.py` | **Busca información en el reglamento interno.** Utiliza ChromaDB para encontrar fragmentos relevantes de un PDF previamente cargado con las normas de la empresa. Se encarga de responder preguntas sobre derechos, prohibiciones y reglamentaciones internas. |
-| `documentos_agent.py` | **Maneja solicitudes de documentos.** Responde preguntas sobre cómo acceder a documentos laborales en la plataforma BUK y redirige al usuario a la sección correspondiente para descargar liquidaciones, contratos y certificados. |
+## 📌 **Tecnologías Utilizadas**
+- 🔹 **LangGraph** (Sistema multiagente)
+- 🔹 **LangChain** (Manejo de consultas a documentos)
+- 🔹 **OpenAI GPT-4** (Procesamiento del lenguaje natural)
+- 🔹 **SQLite** (Persistencia de sesiones)
+- 🔹 **ChromaDB** (Vector store para consultas en PDF)
+- 🔹 **Tavily API** (Búsqueda en la web para beneficios)
+- 🔹 **Graphviz & Mermaid.js** (Visualización del sistema)
 
 ---
 
-## **📂 Estructura del Proyecto**
-```bash
+## 📌 **Arquitectura del Sistema**
+### **🔗 Flujo de Interacción**
+1️⃣ **Un trabajador se acerca al tótem** y Amparo inicia un nuevo chat con:  
+   🗨️ *"¿En qué le puedo ayudar hoy?"*  
+2️⃣ **El usuario realiza una consulta**.  
+3️⃣ **Amparo clasifica la intención de la consulta** y la dirige al agente correcto.  
+4️⃣ **El agente especializado responde** y Amparo muestra la respuesta al usuario.  
+5️⃣ **El historial se guarda en SQLite** para mantener contexto en la conversación.  
+
+---
+
+## 📌 **Estructura del Proyecto**
+```
 Amparo/
 │── Amparo2/
-│   ├── agents/                 # Agentes inteligentes del sistema
-│   │   ├── amparo_agent.py      # Agente principal (Amparo)
-│   │   ├── sueldo_agent.py      # Maneja consultas de sueldos
-│   │   ├── beneficios_agent.py  # Busca información sobre beneficios
-│   │   ├── reglamento_agent.py  # Responde consultas sobre el reglamento interno
-│   │   ├── documentos_agent.py  # Maneja consultas sobre documentos en BUK
-│   ├── memory/                  # Manejador de sesiones
-│   │   ├── session_manager.py    # Permite gestionar el historial de cada usuario
-│   │   ├── chat_state.py         # Define el estado del chat
-│   ├── utils/                    # Utilidades del sistema
-│   │   ├── intent_classifier.py   # Clasificación de intención de preguntas
-│   │   ├── reglamento_loader.py   # Carga y búsqueda en el reglamento interno
-│   ├── scripts/                   # Scripts auxiliares
-│   │   ├── cargar_reglamento.py   # Script para indexar el reglamento interno
-│   │   ├── probar_sistema.py      # Script para probar Amparo en la terminal
-│   ├── documentos/                # PDFs del reglamento
-│   ├── chroma_db/                 # Base de datos de ChromaDB
-│── README.md                      # Documentación del proyecto
-│── requirements.txt                # Dependencias del proyecto
+│   ├── agents/             # Agentes especializados
+│   │   ├── amparo_agent.py      # Agente principal (Router)
+│   │   ├── sueldo_agent.py      # Responde sobre sueldos y anticipos
+│   │   ├── beneficios_agent.py  # Responde sobre beneficios laborales
+│   │   ├── reglamento_agent.py  # Busca información en el reglamento interno
+│   │   ├── documentos_agent.py  # Gestiona documentos en BUK
+│   ├── memory/
+│   │   ├── session_manager.py  # Manejo de sesiones con SQLite
+│   ├── utils/
+│   │   ├── intent_classifier.py  # Clasifica la intención de las consultas
+│   │   ├── reglamento_loader.py  # Carga el PDF del reglamento en ChromaDB
+│   ├── scripts/
+│   │   ├── probar_sistema.py     # Simula una conversación con Amparo
+│   │   ├── visualizar_grafo.py   # Genera el grafo del sistema
+│── sessions.db  # Base de datos SQLite para sesiones
+│── README.md
+│── requirements.txt
 ```
 
 ---
 
-## **🔧 Instalación**
-### **1️⃣ Clonar el repositorio**
-```bash
-git clone https://github.com/tu-usuario/amparo.git
-cd amparo
-```
+## 📌 **Agentes del Sistema**
+### **👩‍💼 Amparo (Agente Principal)**
+🔹 **Función:** Dirige las consultas al agente correcto y responde al usuario.  
+🔹 **Manejo de estado:** Guarda la conversación en SQLite para recordar el contexto.  
 
-### **2️⃣ Crear un entorno virtual**
-```bash
-python -m venv .venv
-source .venv/bin/activate  # Mac/Linux
-.venv\Scripts\activate      # Windows
-```
+### **💰 SueldoAgent**
+🔹 **Función:** Responde preguntas sobre **sueldos, anticipos y liquidaciones.**  
+🔹 **Fuente de información:** Base de conocimiento interna.  
+🔹 **Redirige solicitudes de impresión de liquidaciones a `DocumentosAgent`.**  
 
-### **3️⃣ Instalar dependencias**
+### **📜 ReglamentoAgent**
+🔹 **Función:** Busca información en el **Reglamento Interno de la empresa.**  
+🔹 **Fuente de información:** Un **PDF cargado en ChromaDB.**  
+🔹 **Mejora reciente:** **Resumir el contenido antes de responder.**  
+
+### **🎁 BeneficiosAgent**
+🔹 **Función:** Busca información sobre **beneficios laborales.**  
+🔹 **Fuente de información:** Web **(usando Tavily API)**.  
+🔹 **Mejora reciente:** **Ahora resume la información en lugar de solo devolver enlaces.**  
+
+### **📑 DocumentosAgent**
+🔹 **Función:** Gestiona solicitudes de documentos en **BUK**.  
+🔹 **Fuente de información:** Enlaza con la plataforma de Recursos Humanos.  
+
+---
+
+## 📌 **Manejo de Sesiones con SQLite**
+📌 **Antes:** Las sesiones se perdían al reiniciar el sistema.  
+✅ **Ahora:** Las sesiones se almacenan en **SQLite** y son **persistentes.**  
+
+🔹 **Al iniciar una conversación:** Se crea una sesión en `sessions.db`.  
+🔹 **Cada mensaje enviado:** Se guarda en la base de datos.  
+🔹 **Si el usuario vuelve a interactuar:** Se carga su historial anterior.  
+
+---
+
+## 📌 **Visualización del Sistema**
+### 📌 **Generación del Grafo con Mermaid.js**
+📌 **Genera una visualización del flujo de agentes en Amparo.**  
+
+1️⃣ **Ejecuta el siguiente comando:**
+```bash
+python scripts/visualizar_grafo.py
+```
+2️⃣ **Resultado esperado:**
+```
+✅ Grafo Mermaid guardado en 'grafo_amparo.mmd'.
+✅ Grafo generado correctamente como 'grafo_amparo.png'.
+```
+3️⃣ **Visualización en la Web:**
+   - Copia el contenido de `grafo_amparo.mmd`.
+   - Abre [Mermaid Live Editor](https://mermaid-js.github.io/mermaid-live/).
+   - Pega el código y verás el diagrama del sistema.  
+
+---
+
+## 📌 **Cómo Ejecutar el Proyecto**
+### **1️⃣ Instalar Dependencias**
 ```bash
 pip install -r requirements.txt
 ```
 
----
-
-## **⚙️ Configuración**
-### **1️⃣ Configurar Variables de Entorno**
-Crea un archivo **`.env`** en la raíz del proyecto con tu clave de OpenAI:
-```ini
-OPENAI_API_KEY="tu-clave-de-openai"
-```
-
-### **2️⃣ Instalar Dependencias Adicionales**
-Si aparecen advertencias de deprecación, actualiza LangChain:
-```bash
-pip install -U langchain-openai langchain-chroma
-```
-
----
-
-## **🚀 Uso del Sistema**
-### **1️⃣ Indexar el Reglamento Interno**
-Antes de hacer preguntas sobre el reglamento, es necesario cargarlo en la base de datos vectorial:
+### **2️⃣ Cargar el Reglamento Interno en ChromaDB**
 ```bash
 python scripts/cargar_reglamento.py
 ```
 
-### **2️⃣ Probar Amparo en la Terminal**
-Para simular una interacción con el tótem:
+### **3️⃣ Probar el Sistema**
 ```bash
 python scripts/probar_sistema.py
 ```
-👤 **Ejemplo de conversación:**
-```
-👋 Amparo: ¿En qué le puedo ayudar hoy?
-🧑 Usuario: ¿Cuánto anticipo puedo solicitar?
-🤖 Amparo: El máximo de anticipo permitido es el 50% del sueldo líquido del mes anterior.
-🧑 Usuario: ¿Qué dice el reglamento sobre el uso del celular?
-🤖 Amparo: Según el reglamento interno: "El uso de celulares está prohibido durante la jornada laboral excepto en descansos."
-```
 
----
-
-## **🧠 Agentes Implementados y Funcionalidades**
-| **Agente**           | **Descripción** |
-|----------------------|----------------|
-| `amparo_agent.py`   | **Agente principal.** Enruta las consultas al agente adecuado. |
-| `sueldo_agent.py`   | **Maneja consultas sobre sueldos.** Responde sobre anticipos, descuentos y liquidaciones. |
-| `beneficios_agent.py` | **Busca información sobre beneficios.** Usa Google para obtener datos actualizados sobre Caja Los Andes y otros beneficios. |
-| `reglamento_agent.py` | **Responde preguntas sobre el reglamento interno.** Usa ChromaDB para recuperar información desde un PDF indexado. |
-| `documentos_agent.py` | **Maneja solicitudes de documentos en BUK.** Redirige a la plataforma adecuada para descargar liquidaciones de sueldo y otros documentos laborales. |
-
----
-
-## **📌 Scripts Auxiliares**
-| **Script**              | **Descripción** |
-|------------------------|----------------|
-| `cargar_reglamento.py` | Carga el PDF del reglamento en ChromaDB |
-| `probar_sistema.py`   | Permite probar Amparo desde la terminal |
-
----
-
-## **🛠️ Solución de Problemas**
-### **1️⃣ ChromaDB No Guarda Datos**
-**Solución:**
+### **4️⃣ Ver el Grafo del Sistema**
 ```bash
-rm -rf chroma_db/
-python scripts/cargar_reglamento.py
-```
-
-### **2️⃣ "No encontré información en el reglamento"**
-Si Amparo no encuentra información relevante, revisa `reglamento_loader.py` y baja el umbral de similitud:
-```python
-umbral_similitud = 0.2  # En lugar de 0.7
-```
-
-### **3️⃣ Error: `The class Chroma was deprecated`**
-**Solución:**
-```bash
-pip install -U langchain-chroma
-```
-Y cambia:
-```python
-from langchain_community.vectorstores import Chroma
-```
-Por:
-```python
-from langchain_chroma import Chroma
+python scripts/visualizar_grafo.py
 ```
 
 ---
 
-## **📜 Licencia**
-Este proyecto está bajo la licencia MIT.  
+## 📌 **Mejoras Implementadas**
+✅ **Persistencia de sesiones con SQLite**.  
+✅ **Búsqueda web mejorada con Tavily API**.  
+✅ **Respuestas resumidas en ReglamentoAgent y BeneficiosAgent**.  
+✅ **Visualización del sistema con Mermaid.js**.  
 
 ---
 
-## **💡 Próximos Pasos**
-🔹 **Integrar FastAPI** para exponer el sistema como un servicio web.  
-🔹 **Mejorar la precisión en la recuperación de información desde ChromaDB.**  
-🔹 **Agregar más agentes especializados en otras áreas de RRHH.**  
+## 📌 **Siguientes Mejoras**
+🔹 **Agregar autenticación de usuarios para sesiones personalizadas.**  
+🔹 **Optimizar clasificación de intenciones con modelos de IA más avanzados.**  
+🔹 **Implementar API REST para conectar Amparo con otras plataformas.**  
 
 ---
+
+### **📌 Contribuciones**
+Si deseas contribuir, por favor abre un **Pull Request** o envía tus sugerencias en Issues.
+
+📌 **¡Gracias por usar Amparo! 🚀😊**
+
+
+---
+
+✅ **Este README.md ahora está completamente actualizado** con las **últimas mejoras del proyecto**.  
+📌 **Prueba copiarlo en tu proyecto y dime si necesitas ajustes. 🚀😊**

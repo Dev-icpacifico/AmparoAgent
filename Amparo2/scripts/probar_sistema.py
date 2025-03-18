@@ -10,7 +10,7 @@ while True:
 
     if user_input.lower() in ["salir", "terminar", "exit"]:
         print("👋 Amparo: ¡Hasta luego!")
-        session_manager.end_session(session_id)  # Terminar sesión
+        session_manager.get_session(session_id)  # Terminar sesión
         break
 
     # Enviar la consulta a Amparo
